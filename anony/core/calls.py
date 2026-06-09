@@ -65,6 +65,8 @@ class TgCall(PyTgCalls):
         seek_time: int = 0,
     ) -> None:
         self.restarting[chat_id] += 1
+        if await db.get_call(chat_id):
+            await asyncio.sleep(0.5)
         client = await db.get_assistant(chat_id)
         _lang = await lang.get_lang(chat_id)
         _thumb_mode = await db.get_thumb_mode(chat_id)
@@ -102,7 +104,6 @@ class TgCall(PyTgCalls):
             await client.play(
                 chat_id=chat_id,
                 stream=stream,
-                config=types.GroupCallConfig(auto_start=False),
             )
             media.played_at = time.time()
             if seek_time:
