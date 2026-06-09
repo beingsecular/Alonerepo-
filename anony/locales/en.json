@@ -159,5 +159,7 @@
     "help_7": "Stats",
     "help_8": "Sudoers",
     "help_9": "Thumbnail",
-    "help_thumb": "<u><b>Thumbnail commands:</b></u>\n\n/thumb: Toggles the thumbnail on/off for the chat."
+    "help_10": "Effects",
+    "help_thumb": "<u><b>Thumbnail commands:</b></u>\n\n/thumb: Toggles the thumbnail on/off for the chat.",
+    "help_effects": "<u><b>Audio effects commands:</b></u>\n\n/bass: Enhance the bass of the current track.\n/echo: Add a reverb echo effect to the song.\n/slowed: Slow down the tempo with reverb.\n/nightcore: Speed up pitch and tempo of track.\n/normal: Reset all effects to default state."
 }
