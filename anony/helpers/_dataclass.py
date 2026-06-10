@@ -17,6 +17,7 @@ class Media:
     url: str = None
     time: int = 0
     played_at: float = 0
+    played_at: float = None
     user: str = None
     video: bool = False
 
@@ -33,6 +34,7 @@ class Track:
     message_id: int = 0
     time: int = 0
     played_at: float = 0
+    played_at: float = None
     thumbnail: str = None
     user: str = None
     view_count: str = None

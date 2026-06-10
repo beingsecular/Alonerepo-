@@ -4,6 +4,8 @@
 
 
 import time
+import asyncio
+from collections import defaultdict
 from ntgcalls import (ConnectionNotFound, TelegramServerError,
                       RTMPStreamingUnsupported, ConnectionError)
 from pyrogram.errors import (ChatSendMediaForbidden, ChatSendPhotosForbidden,
@@ -20,15 +22,27 @@ from anony.helpers import Media, Track, buttons
 class TgCall(PyTgCalls):
     def __init__(self):
         self.clients = []
+        self.restarting = defaultdict(int)
 
     async def pause(self, chat_id: int) -> bool:
         client = await db.get_assistant(chat_id)
         await db.playing(chat_id, paused=True)
+
+        media = queue.get_current(chat_id)
+        if media and media.played_at:
+            media.time += int(time.time() - media.played_at)
+            media.played_at = None
+
         return await client.pause(chat_id)
 
     async def resume(self, chat_id: int) -> bool:
         client = await db.get_assistant(chat_id)
         await db.playing(chat_id, paused=False)
+
+        media = queue.get_current(chat_id)
+        if media:
+            media.played_at = time.time()
+
         return await client.resume(chat_id)
 
     async def stop(self, chat_id: int) -> None:
@@ -56,6 +70,9 @@ class TgCall(PyTgCalls):
         media: Media | Track,
         seek_time: int = 0,
     ) -> None:
+        self.restarting[chat_id] += 1
+        if await db.get_call(chat_id):
+            await asyncio.sleep(0.5)
         client = await db.get_assistant(chat_id)
         _lang = await lang.get_lang(chat_id)
         _thumb_mode = await db.get_thumb_mode(chat_id)
@@ -73,6 +90,11 @@ class TgCall(PyTgCalls):
             await message.edit_text(_lang["error_no_file"].format(config.SUPPORT_CHAT))
             return await self.play_next(chat_id)
 
+        ffmpeg_params = (
+            (f"-ss {seek_time} " if seek_time > 1 else "")
+            + ("-vn" if not media.video else "")
+        ).strip()
+
         stream = types.MediaStream(
             media_path=media.file_path,
             audio_parameters=types.AudioQuality.HIGH,
@@ -83,8 +105,9 @@ class TgCall(PyTgCalls):
                 if media.video
                 else types.MediaStream.Flags.IGNORE
             ),
-            ffmpeg_parameters=f"-ss {seek_time}" if seek_time > 1 else None,
+            ffmpeg_parameters=ffmpeg_params or None,
         )
+
         try:
             await client.play(
                 chat_id=chat_id,
@@ -93,6 +116,19 @@ class TgCall(PyTgCalls):
             )
             media.played_at = time.time()
             if not seek_time:
+            if await db.get_call(chat_id):
+                try:
+                    logger.info(f"Changing stream for {chat_id} with params: {ffmpeg_params}")
+                    await client.change_stream(chat_id, stream)
+                except Exception as e:
+                    logger.error(f"Error in change_stream: {e}")
+                    await client.play(chat_id, stream)
+            else:
+                await client.play(chat_id, stream)
+            media.played_at = time.time()
+            if seek_time:
+                media.time = seek_time
+            else:
                 media.time = 1
                 await db.add_call(chat_id)
                 text = _lang["play_media"].format(
@@ -147,6 +183,9 @@ class TgCall(PyTgCalls):
         except RTMPStreamingUnsupported:
             await self.stop(chat_id)
             await message.edit_text(_lang["error_rtmp"])
+        finally:
+            await asyncio.sleep(5)
+            self.restarting[chat_id] -= 1
 
 
     async def replay(self, chat_id: int) -> None:
@@ -179,7 +218,17 @@ class TgCall(PyTgCalls):
 
         media = queue.get_next(chat_id)
         if not media:
-            return await self.stop(chat_id)
+            if await db.get_autoplay(chat_id):
+                if current and isinstance(current, Track):
+                    media = await yt.get_related(current.id, video=current.video)
+                    if media:
+                        queue.add(chat_id, media)
+                    else:
+                        return await self.stop(chat_id)
+                else:
+                    return await self.stop(chat_id)
+            else:
+                return await self.stop(chat_id)
 
         _lang = await lang.get_lang(chat_id)
         msg = None
@@ -226,6 +275,8 @@ class TgCall(PyTgCalls):
         async def update_handler(_, update: types.Update) -> None:
             if isinstance(update, types.StreamEnded):
                 if update.stream_type == types.StreamEnded.Type.AUDIO:
+                    if self.restarting.get(update.chat_id):
+                        return
                     await self.play_next(update.chat_id)
             elif isinstance(update, types.ChatUpdate):
                 if update.status in [
