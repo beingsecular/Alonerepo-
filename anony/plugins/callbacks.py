@@ -6,6 +6,7 @@
 import os
 import re
 import time
+import aiohttp
 from pyrogram import enums, errors, filters, types
 
 from anony import anon, app, db, lang, queue, tg, yt
@@ -243,16 +244,31 @@ async def song_download_cb(_, query: types.CallbackQuery):
     file_path = None
     if not url.startswith(("http://", "https://")):
         file_path = url
+    else:
+        # Download the file locally to avoid WEBPAGE_MEDIA_EMPTY
+        try:
+            ext = "mp4" if dl_type == "video" else "mp3"
+            file_path = f"cache/{vid_id}.{ext}"
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as resp:
+                    if resp.status == 200:
+                        with open(file_path, "wb") as f:
+                            f.write(await resp.read())
+                    else:
+                        file_path = None
+        except Exception:
+            file_path = None
 
     try:
+        media_to_send = file_path if file_path else url
         if dl_type == "audio":
             await query.message.reply_audio(
-                audio=url,
+                audio=media_to_send,
                 caption=f"<b>Downloaded via {app.name}</b>"
             )
         else:
             await query.message.reply_video(
-                video=url,
+                video=media_to_send,
                 caption=f"<b>Downloaded via {app.name}</b>"
             )
 
