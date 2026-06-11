@@ -67,7 +67,7 @@ class Thumbnail:
         overlay = Image.new("RGBA", (520, 520), (0, 0, 0, 0))
         overlay_draw = ImageDraw.Draw(overlay)
         # Blueish translucent overlay on the left
-        overlay_draw.rectangle([0, 0, 220, 520], fill=(0, 70, 140, 160))
+        overlay_draw.rectangle([0, 0, 220, 520], fill=(0, 70, 140, 210))
 
         # Artist name on overlay
         artist_upper = str(artist).upper()
@@ -84,7 +84,7 @@ class Thumbnail:
         words = title_upper.split()
         line = ""
         for word in words:
-            if len(line + " " + word) < 12:
+            if len(line + " " + word) < 15:
                 line += " " + word
             else:
                 title_lines.append(line.strip())
@@ -97,7 +97,7 @@ class Thumbnail:
             y_off += 40
 
         # 4K text at the bottom
-        overlay_draw.text((30, 410), "4K", font=self.font_4k, fill="white")
+        overlay_draw.text((30, 390), "4K", font=self.font_4k, fill="white")
 
         thumb.alpha_composite(overlay)
         thumb = self._make_sq(thumb, radius=60)
@@ -130,7 +130,7 @@ class Thumbnail:
 
         # 5. Progress Bar
         bar_x_start = 630
-        bar_x_end = 1180
+        bar_x_end = 1230
         bar_y = 420
         progress = 0.35
 
@@ -141,34 +141,42 @@ class Thumbnail:
 
         # 6. Time Labels
         draw.text((630, 440), "0:35", font=self.font_time, fill=(200, 200, 200))
-        draw.text((1130, 440), str(duration), font=self.font_time, fill=(200, 200, 200))
+        draw.text((1180, 440), str(duration), font=self.font_time, fill=(200, 200, 200))
 
         # 7. Controls
-        draw.polygon([(690, 560), (740, 530), (740, 590)], fill="white")
-        draw.polygon([(640, 560), (690, 530), (690, 590)], fill="white")
-        draw.rectangle([850, 530, 870, 590], fill="white")
-        draw.rectangle([890, 530, 910, 590], fill="white")
-        draw.polygon([(1020, 530), (1070, 560), (1020, 590)], fill="white")
-        draw.polygon([(1070, 530), (1120, 560), (1070, 590)], fill="white")
+        # Centered at 930
+        y_ctrl = 520
+        # Skip Back
+        draw.polygon([(790, y_ctrl + 30), (840, y_ctrl), (840, y_ctrl + 60)], fill="white")
+        draw.polygon([(740, y_ctrl + 30), (790, y_ctrl), (790, y_ctrl + 60)], fill="white")
+        # Play/Pause
+        draw.rectangle([900, y_ctrl, 920, y_ctrl + 60], fill="white")
+        draw.rectangle([940, y_ctrl, 960, y_ctrl + 60], fill="white")
+        # Skip Forward
+        draw.polygon([(1020, y_ctrl), (1070, y_ctrl + 30), (1020, y_ctrl + 60)], fill="white")
+        draw.polygon([(1070, y_ctrl), (1120, y_ctrl + 30), (1070, y_ctrl + 60)], fill="white")
 
         # 8. Volume Bar
-        draw.polygon([(710, 675), (730, 675), (745, 660), (745, 690), (730, 675)], fill="white")
-        draw.polygon([(1120, 675), (1140, 675), (1155, 660), (1155, 690), (1140, 675)], fill="white")
-        draw.arc([1145, 660, 1170, 690], start=-60, end=60, fill="white", width=3)
-        draw.arc([1140, 650, 1180, 700], start=-60, end=60, fill="white", width=3)
-        draw.line([760, 675, 1110, 675], fill=(150, 150, 150), width=6)
-        draw.line([760, 675, 1020, 675], fill="white", width=6)
-        draw.ellipse([1014, 669, 1026, 681], fill="white")
+        # Centered at 930
+        y_vol = 675
+        draw.polygon([(735, y_vol), (755, y_vol), (770, y_vol - 15), (770, y_vol + 15), (755, y_vol)], fill="white")
+        draw.polygon([(1105, y_vol), (1125, y_vol), (1140, y_vol - 15), (1140, y_vol + 15), (1125, y_vol)], fill="white")
+        draw.arc([1145, y_vol - 15, 1170, y_vol + 15], start=-60, end=60, fill="white", width=3)
+        draw.arc([1140, y_vol - 25, 1180, y_vol + 25], start=-60, end=60, fill="white", width=3)
+        draw.line([785, y_vol, 1090, y_vol], fill=(150, 150, 150), width=6)
+        draw.line([785, y_vol, 1010, y_vol], fill="white", width=6)
+        draw.ellipse([1004, y_vol - 6, 1016, y_vol + 6], fill="white")
 
         # 9. Bottom Left Icons
-        draw.rounded_rectangle([630, 665, 660, 685], radius=5, outline="white", width=2)
-        draw.polygon([(638, 685), (645, 685), (638, 693)], fill="white")
-        draw.line([685, 668, 705, 668], fill="white", width=2)
-        draw.line([685, 676, 705, 676], fill="white", width=2)
-        draw.line([685, 684, 705, 684], fill="white", width=2)
-        draw.rectangle([678, 667, 680, 669], fill="white")
-        draw.rectangle([678, 675, 680, 677], fill="white")
-        draw.rectangle([678, 683, 680, 685], fill="white")
+        y_icons = 665
+        draw.rounded_rectangle([630, y_icons, 660, y_icons + 20], radius=5, outline="white", width=2)
+        draw.polygon([(638, y_icons + 20), (645, y_icons + 20), (638, y_icons + 28)], fill="white")
+        draw.line([685, y_icons + 3, 705, y_icons + 3], fill="white", width=2)
+        draw.line([685, y_icons + 11, 705, y_icons + 11], fill="white", width=2)
+        draw.line([685, y_icons + 19, 705, y_icons + 19], fill="white", width=2)
+        draw.rectangle([678, y_icons + 2, 680, y_icons + 4], fill="white")
+        draw.rectangle([678, y_icons + 10, 680, y_icons + 12], fill="white")
+        draw.rectangle([678, y_icons + 18, 680, y_icons + 20], fill="white")
 
         final_thumb = background.convert("RGB")
         out_path = f"cache/{videoid}.png"
