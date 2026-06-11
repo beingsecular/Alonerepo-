@@ -116,18 +116,18 @@ class YouTube:
                     result = result_data.get("result")
                     if result:
                         data = result[0]
-                    return Track(
-                        id=data.get("id"),
-                        channel_name=data.get("channel", {}).get("name"),
-                        duration=data.get("duration"),
-                        duration_sec=utils.to_seconds(data.get("duration")),
-                        message_id=m_id,
-                        title=data.get("title")[:25],
-                        thumbnail=data.get("thumbnails", [{}])[-1].get("url").split("?")[0],
-                        url=data.get("link"),
-                        view_count=data.get("viewCount", {}).get("short"),
-                        video=video,
-                    )
+                        return Track(
+                            id=data.get("id"),
+                            channel_name=data.get("channel", {}).get("name"),
+                            duration=data.get("duration"),
+                            duration_sec=utils.to_seconds(data.get("duration")),
+                            message_id=m_id,
+                            title=data.get("title")[:25],
+                            thumbnail=data.get("thumbnails", [{}])[-1].get("url").split("?")[0],
+                            url=data.get("link"),
+                            view_count=data.get("viewCount", {}).get("short"),
+                            video=video,
+                        )
         except Exception as e:
             logger.error(f"Error in search from API: {e}")
 
@@ -166,21 +166,21 @@ class YouTube:
                     videos = data.get("videos")
                     if videos:
                         tracks = []
-                    for data in videos:
-                        track = Track(
-                            id=data.get("id"),
-                            channel_name=data.get("channel", {}).get("name", ""),
-                            duration=data.get("duration"),
-                            duration_sec=utils.to_seconds(data.get("duration")),
-                            title=data.get("title")[:25],
-                            thumbnail=data.get("thumbnails")[-1].get("url").split("?")[0],
-                            url=data.get("link").split("&list=")[0],
-                            user=user,
-                            view_count="",
-                            video=video,
-                        )
-                        tracks.append(track)
-                    return tracks
+                        for data in videos:
+                            track = Track(
+                                id=data.get("id"),
+                                channel_name=data.get("channel", {}).get("name", ""),
+                                duration=data.get("duration"),
+                                duration_sec=utils.to_seconds(data.get("duration")),
+                                title=data.get("title")[:25],
+                                thumbnail=data.get("thumbnails")[-1].get("url").split("?")[0],
+                                url=data.get("link").split("&list=")[0],
+                                user=user,
+                                view_count="",
+                                video=video,
+                            )
+                            tracks.append(track)
+                        return tracks
         except Exception as e:
             logger.error(f"Error fetching playlist from API: {e}")
 
