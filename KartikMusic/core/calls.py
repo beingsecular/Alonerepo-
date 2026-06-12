@@ -237,6 +237,9 @@ class TgCall(PyTgCalls):
                         queue.add(chat_id, media)
                         # We need to call get_next to remove the old track from queue
                         media = queue.get_next(chat_id)
+                        if not media:
+                            return
+
                         if not media.file_path:
                             media.file_path = await yt.download(
                                 media.id, video=media.video
@@ -273,6 +276,10 @@ class TgCall(PyTgCalls):
 
         # If we reached here, there is a next media in the queue
         media = queue.get_next(chat_id)
+        if not media:
+            await self.stop(chat_id)
+            return await app.send_message(chat_id, _lang["queue_finished"])
+
         msg = None
         if media.message_id:
             try:
