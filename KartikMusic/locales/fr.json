@@ -172,5 +172,7 @@
     "autoplay_on": "<b>Autoplay enabled by</b> {0}\n\nFrom now on, the bot will automatically play related music once the queue is empty.",
     "add_mee": "Add me",
     "thumb_on": "Thumbnail enabled.",
-    "vclog_on": "<b>VC Logger enabled by</b> {0}"
+    "vclog_on": "<b>VC Logger enabled by</b> {0}",
+    "autoplay_next": "La lecture automatique est activée. Attendez un moment... Recherche et téléchargement d'une piste associée.",
+    "autoplay_skip": "<b>Flux sauté par {0}</b>\n\nLa lecture automatique est activée. Recherche d'une piste associée, veuillez patienter..."
 }

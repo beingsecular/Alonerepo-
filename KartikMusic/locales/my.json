@@ -172,5 +172,7 @@
     "autoplay_on": "<b>Autoplay enabled by</b> {0}\n\nFrom now on, the bot will automatically play related music once the queue is empty.",
     "add_mee": "Add me",
     "thumb_on": "Thumbnail enabled.",
-    "vclog_on": "<b>VC Logger enabled by</b> {0}"
+    "vclog_on": "<b>VC Logger enabled by</b> {0}",
+    "autoplay_next": "အလိုအလျောက်ဖွင့်ခြင်း ဖွင့်ထားသည်။ ခဏစောင့်ပါ... ဆက်စပ်သီချင်းကို ရှာဖွေပြီး ဒေါင်းလုဒ်လုပ်နေသည်။",
+    "autoplay_skip": "<b>{0} မှ ကျော်လိုက်သည်</b>\n\nအလိုအလျောက်ဖွင့်ခြင်း ဖွင့်ထားသည်။ ဆက်စပ်သီချင်းကို ရှာဖွေနေသည်၊ ကျေးဇူးပြု၍ စောင့်ပါ..."
 }
